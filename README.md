@@ -48,3 +48,7 @@ Los marcadores con borde discontinuo indican ubicación aproximada (geocodificad
 ---
 
 *Tesis de pregrado — Geología, Universidad del Norte, 2026*
+
+---
+
+© 2026 **Lorena Cárdenas** — Estudiante de Geología, Universidad del Norte (Barranquilla, Colombia). Todos los derechos reservados.
