@@ -1,0 +1,12 @@
+# Fotos de muestras (demasiado pesadas para GitHub)
+imagenes/*_muestra_*.jpg
+imagenes/*_drx.jpg
+imagenes/laminas/
+
+# Los diagramas si se suben (son PNG pequeños)
+!imagenes/diagramas/
+
+# Temporales
+_tmp_geochem/
+__pycache__/
+*.pyc
