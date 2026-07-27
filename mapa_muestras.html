@@ -91,6 +91,9 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
   padding:14px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-shrink:0;}
 #modalTitle{font-size:1rem;font-weight:700;line-height:1.3;}
 #modalSubtitle{font-size:.8rem;opacity:.85;margin-top:3px;}
+.modal-analyses{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.ma-ok{font-size:.72rem;padding:2px 8px;border-radius:10px;background:#d4edda;color:#155724;font-weight:600;}
+.ma-no{font-size:.72rem;padding:2px 8px;border-radius:10px;background:#f8d7da;color:#721c24;font-weight:600;}
 #closeModal{background:rgba(255,255,255,.2);border:none;color:#fff;
   border-radius:50%;width:32px;height:32px;font-size:1.1rem;cursor:pointer;
   flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -345,6 +348,7 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
       <div>
         <div id="modalTitle">—</div>
         <div id="modalSubtitle">—</div>
+        <div id="modalAnalyses" class="modal-analyses"></div>
       </div>
       <button id="closeModal">&#x2715;</button>
     </div>
@@ -650,6 +654,15 @@ function abrirFicha(code){
     `${code}  |  ${s.TIPO_ROCA||"Tipo de roca no especificado"}`;
   document.getElementById("modalSubtitle").textContent=
     `${s.UBICACION||"—"}, ${s.PAIS||"—"}  •  ${s.SPP||""}`;
+
+  // Indicadores de análisis
+  const tienePetro=nonEmpty(s.OBS_PETRO)||(IMG_LAMINAS[code]||[]).length>0;
+  const tieneDRX=nonEmpty(s.DRX);
+  const tieneGeoq=nonEmpty(s.GEOQUIMICA);
+  document.getElementById("modalAnalyses").innerHTML=
+    `<span class="${tienePetro?'ma-ok':'ma-no'}">${tienePetro?'✓':'✗'} Análisis petrográfico</span>` +
+    `<span class="${tieneDRX?'ma-ok':'ma-no'}">${tieneDRX?'✓':'✗'} Análisis DRX EVA</span>` +
+    `<span class="${tieneGeoq?'ma-ok':'ma-no'}">${tieneGeoq?'✓':'✗'} Análisis geoquímico</span>`;
 
   // Tab descripción
   renderDesc(code, s);
