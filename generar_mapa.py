@@ -1625,7 +1625,7 @@ async function geocodeSample(ubicacion,pais){
 
 function buildPopup(s,approx){
   const tieneDRX=nonEmpty(s.DRX), tieneGeoq=nonEmpty(s.GEOQUIMICA);
-  const tienePetro=nonEmpty(s.OBS_PETRO)||IMG_LAMINAS[s.UNINORTE_CODE]?.length>0;
+  const tienePetro=!nonEmpty(s.DRX);
   let html=`<div class="popup-content"><table>
     <tr><td class="k">UNINORTE CODE</td><td>${esc(s.UNINORTE_CODE)}</td></tr>
     <tr><td class="k">País</td><td>${esc(s.PAIS)}</td></tr>
@@ -1746,7 +1746,7 @@ function applyFilters(){
     if(spp && s.SPP!==spp) v=false;
     if(onlyDRX && !nonEmpty(s.DRX)) v=false;
     if(onlyGeo && !nonEmpty(s.GEOQUIMICA)) v=false;
-    if(onlyPetro && (nonEmpty(s.DRX)||nonEmpty(s.GEOQUIMICA))) v=false;
+    if(onlyPetro && nonEmpty(s.DRX)) v=false;
     if(v) markerCluster.addLayer(rec.marker);
   });
 }
@@ -1782,7 +1782,7 @@ function abrirFicha(code){
     `${s.UBICACION||"—"}, ${s.PAIS||"—"}  •  ${s.SPP||""}`;
 
   // Indicadores de análisis
-  const tienePetro=nonEmpty(s.OBS_PETRO)||(IMG_LAMINAS[code]||[]).length>0;
+  const tienePetro=!nonEmpty(s.DRX);
   const tieneDRX=nonEmpty(s.DRX);
   const tieneGeoq=nonEmpty(s.GEOQUIMICA);
   document.getElementById("modalAnalyses").innerHTML=
