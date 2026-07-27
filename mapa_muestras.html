@@ -307,9 +307,9 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
     <select id="fAutor"><option value="">Todos</option></select>
     <label for="fSpp">Especie (spp)</label>
     <select id="fSpp"><option value="">Todas</option></select>
-    <div class="chk-row"><input type="checkbox" id="fDRX"><label for="fDRX">Solo con analisis DRX</label></div>
-    <div class="chk-row"><input type="checkbox" id="fGeo"><label for="fGeo">Solo con analisis Geoquimico</label></div>
-    <div class="chk-row"><input type="checkbox" id="fPetro"><label for="fPetro">Solo analisis petrografico</label></div>
+    <div class="chk-row"><input type="checkbox" id="fDRX"><label for="fDRX">Solo con análisis DRX</label></div>
+    <div class="chk-row"><input type="checkbox" id="fGeo"><label for="fGeo">Solo con análisis geoquímico</label></div>
+    <div class="chk-row"><input type="checkbox" id="fPetro"><label for="fPetro">Solo análisis petrográfico</label></div>
     <button id="resetBtn">Limpiar filtros</button>
   </div>
   <div id="unlocatedPanel"></div>
@@ -689,10 +689,9 @@ function renderDesc(code, s){
   const obs=s.OBS_PETRO||"";
   const d=DRX_DATA[code];
   const g=geoByCode[code];
-  let html=`<div class="desc-section"><h4>Descripción petrográfica</h4>`;
-  if(obs) html+=`<div class="description-box">${esc(obs)}</div>`;
-  else    html+=`<div class="no-drx">Sin descripción petrográfica registrada.</div>`;
-  html+=`</div>`;
+  let html=``;
+  if(obs) html+=`<div class="desc-section"><h4>Descripción petrográfica</h4>
+    <div class="description-box">${esc(obs)}</div></div>`;
   if(d&&d.descripcion){
     html+=`<div class="desc-section"><h4>Descripción propia (DRX)</h4>
       <div class="description-box">${esc(d.descripcion)}</div></div>`;
@@ -704,6 +703,7 @@ function renderDesc(code, s){
       <table class="mineral-table"><thead><tr><th>Elemento</th><th>Valor</th><th>Unidad</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`;
   }
+  if(!html) html=`<div class="no-drx">Sin descripción disponible para esta muestra.</div>`;
   body.innerHTML=html;
 }
 
