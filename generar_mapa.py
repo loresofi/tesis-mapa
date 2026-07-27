@@ -1742,7 +1742,7 @@ function applyFilters(){
     if(spp && s.SPP!==spp) v=false;
     if(onlyDRX && !nonEmpty(s.DRX)) v=false;
     if(onlyGeo && !nonEmpty(s.GEOQUIMICA)) v=false;
-    if(onlyPetro && (nonEmpty(s.DRX)||nonEmpty(s.GEOQUIMICA))) v=false;
+    if(onlyPetro && !nonEmpty(s.OBS_PETRO) && !(IMG_LAMINAS[s.UNINORTE_CODE]?.length>0)) v=false;
     if(v) markerCluster.addLayer(rec.marker);
   });
 }
@@ -1800,13 +1800,21 @@ function abrirFicha(code){
 function renderDesc(code, s){
   const body=document.getElementById("descBody");
   const obs=s.OBS_PETRO||"";
+  const d=DRX_DATA[code];
   const g=geoByCode[code];
-  let html=`<div class="desc-section"><h4>Descripción propia</h4>`;
+  let html=`<div class="desc-section"><h4>Descripción petrográfica</h4>`;
   if(obs) html+=`<div class="description-box">${esc(obs)}</div>`;
   else    html+=`<div class="no-drx">Sin descripción petrográfica registrada.</div>`;
   html+=`</div>`;
+  if(d&&d.descripcion){
+    html+=`<div class="desc-section"><h4>Descripción propia (DRX)</h4>
+      <div class="description-box">${esc(d.descripcion)}</div></div>`;
+  }
+  if(d&&d.interpretacion){
+    html+=`<div class="desc-section"><h4>Interpretación con IA <span class="ia-badge">IA</span></h4>
+      <div class="interpretacion-box">${esc(d.interpretacion)}</div></div>`;
+  }
   if(g){
-    const SHOW_COLS=['SiO2','Al2O3','Fe2O3(T)','MnO','MgO','CaO','Na2O','K2O','TiO2','P2O5','LOI','Total','Ba','Sr','Y','Zr','V','Sc'];
     const rows=SHOW_COLS.filter(c=>g[c]!==undefined&&g[c]!==null).map(c=>
       `<tr><td><b>${c}</b></td><td>${Number(g[c]).toFixed(2)}</td><td>${GEO_UNITS[c]||''}</td></tr>`).join("");
     if(rows) html+=`<div class="desc-section"><h4>Geoquímica</h4>
