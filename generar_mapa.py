@@ -286,6 +286,15 @@ def recopilar_imagenes_muestra_v2(all_codes, fotos_dir, new_photos_dir, img_out_
     result = {c: [] for c in all_codes}
     img_out_dir.mkdir(parents=True, exist_ok=True)
 
+    # Primero: recoger imagenes ya procesadas en img_out_dir (NYBxx_muestra_N.jpg)
+    import re as _re
+    for code in all_codes:
+        existing = sorted(
+            f for f in img_out_dir.glob(f"{code}_muestra_*.jpg")
+        )
+        if existing:
+            result[code] = [f"imagenes/{f.name}" for f in existing]
+
     if fotos_dir:
         fotos_base = Path(fotos_dir)
         if fotos_base.is_dir():
@@ -1281,8 +1290,66 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
 #loadingBar{position:absolute;bottom:0;left:0;right:0;z-index:1300;
   background:#1d3557;color:#fff;font-size:.78rem;padding:6px 12px;display:none;}
 
-/* ---- PAGINA GEOQUIMICA ---- */
+/* popup analyses */
+.popup-analyses{display:flex;flex-direction:column;gap:3px;margin-top:8px;}
+.analysis-no{font-size:.78rem;color:#c0392b;font-weight:600;padding:3px 6px;
+  background:#fdecea;border-radius:4px;}
+.desc-section{margin-bottom:16px;}
+.desc-section h4{margin:0 0 8px;font-size:.9rem;color:#1d3557;border-bottom:1px solid #e0e0e0;padding-bottom:4px;}
+
+/* ---- PAGINA DRX Y GEOQUIMICA ---- */
 #page-geochem{flex-direction:row;overflow:hidden;}
+/* tarjeta DRX+geo por muestra */
+.drx-geo-card{background:#fff;border:1px solid #e0e0e0;border-radius:10px;
+  padding:16px;margin-bottom:18px;}
+.drx-geo-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.drx-geo-code{font-size:1rem;font-weight:700;color:#1d3557;}
+.drx-geo-tipo{font-size:.78rem;color:#888;background:#f0f4f8;padding:2px 8px;border-radius:12px;}
+.drx-geo-body{display:flex;gap:16px;flex-wrap:wrap;}
+.drx-geo-img{flex:0 0 220px;max-width:220px;}
+.drx-geo-img img{width:100%;border-radius:6px;cursor:pointer;}
+.drx-geo-img-placeholder{width:100%;height:160px;background:#f5f5f5;border:1px dashed #ccc;
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  font-size:.75rem;color:#aaa;text-align:center;}
+.drx-geo-info{flex:1;min-width:200px;}
+.drx-geo-popup-btn{background:#1d3557;color:#fff;border:none;border-radius:6px;
+  padding:6px 12px;cursor:pointer;font-size:.78rem;font-weight:600;margin-bottom:10px;}
+.drx-geo-popup-btn:hover{background:#264653;}
+.geo-table-visual{width:100%;border-collapse:collapse;font-size:.78rem;}
+.geo-table-visual th{background:#1d3557;color:#fff;padding:5px 8px;text-align:left;}
+.geo-table-visual td{padding:4px 8px;border-bottom:1px solid #f0f0f0;}
+.geo-table-visual tr:nth-child(even) td{background:#f7f9fc;}
+.geo-bar-cell{display:flex;align-items:center;gap:6px;}
+.geo-bar{height:10px;background:#e63946;border-radius:3px;min-width:2px;}
+/* popup mineral info */
+.mineral-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;
+  display:flex;align-items:center;justify-content:center;}
+.mineral-popup{background:#fff;border-radius:10px;padding:20px;max-width:480px;width:90%;
+  max-height:80vh;overflow-y:auto;position:relative;}
+.mineral-popup h3{margin:0 0 12px;color:#1d3557;}
+.mineral-popup-close{position:absolute;top:10px;right:12px;background:none;border:none;
+  font-size:1.2rem;cursor:pointer;color:#555;}
+
+/* ---- PAGINA LAMINAS DELGADAS ---- */
+#page-laminas{overflow-y:auto;padding:20px;}
+.lam-page-sample{background:#fff;border:1px solid #ddd;border-radius:10px;
+  margin-bottom:24px;overflow:hidden;}
+.lam-page-header{background:#1d3557;color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;}
+.lam-page-code{font-size:1rem;font-weight:700;}
+.lam-page-tipo{font-size:.78rem;opacity:.8;}
+.lam-page-body{padding:16px;}
+.lam-desc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;}
+.lam-desc-box{background:#f7f9fc;border:1px solid #e0e0e0;border-radius:6px;padding:10px;}
+.lam-desc-box label{font-size:.72rem;font-weight:700;color:#1d3557;text-transform:uppercase;
+  display:block;margin-bottom:4px;}
+.lam-desc-box p{margin:0;font-size:.8rem;color:#555;min-height:40px;}
+.lam-pair-grid{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.lam-pair-item{flex:1;min-width:200px;max-width:320px;}
+.lam-pair-item img{width:100%;border-radius:6px;cursor:pointer;}
+.lam-pair-label{font-size:.75rem;font-weight:600;color:#444;margin-top:4px;text-align:center;}
+.lam-pair-coords{font-size:.72rem;color:#888;text-align:center;}
+.lam-pair-title{font-size:.83rem;font-weight:700;color:#264653;margin:10px 0 6px;
+  border-bottom:1px solid #eee;padding-bottom:4px;}
 #gc-sidebar{width:260px;min-width:180px;background:#f7f9fc;border-right:1px solid #ddd;
   display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 #gc-sidebar-header{padding:12px;background:#1d3557;color:#fff;font-weight:700;
@@ -1341,8 +1408,9 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
 <nav id="mainNav">
   <h1>Muestras Geologicas — Petrografia / XRD UNINORTE</h1>
   <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showPage('map')">&#128508; Mapa</button>
-    <button class="nav-tab" onclick="showPage('geochem')">&#128300; Geoquimica</button>
+    <button class="nav-tab active" onclick="showPage('map')">🗺 Mapa</button>
+    <button class="nav-tab" onclick="showPage('geochem')">🔬 DRX y geoquímica</button>
+    <button class="nav-tab" onclick="showPage('laminas')">🪨 Láminas delgadas</button>
   </div>
   <div id="counter">Cargando...</div>
 </nav>
@@ -1372,34 +1440,28 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
   <div id="map"></div>
 </div>
 
-<!-- PAGINA: GEOQUIMICA -->
+<!-- PAGINA: DRX Y GEOQUIMICA -->
 <div id="page-geochem" class="page">
   <div id="gc-sidebar">
-    <div id="gc-sidebar-header">Muestras con Geoquimica</div>
+    <div id="gc-sidebar-header">Muestras</div>
     <div id="gc-sidebar-filters">
       <select id="gc-filter-tipo">
         <option value="">Todos los tipos</option>
-        <option value="IGNEA">Ignea</option>
+        <option value="IGNEA">Ígnea</option>
         <option value="SEDIMENTARIA">Sedimentaria</option>
-        <option value="METAMORFICA">Metamorfica</option>
+        <option value="METAMORFICA">Metamórfica</option>
       </select>
     </div>
     <div id="gc-sample-list"></div>
   </div>
   <div id="gc-main">
-    <div id="gc-rock-tabs">
-      <button class="gc-rock-tab active" data-tipo="IGNEA">&#128315; Igneas</button>
-      <button class="gc-rock-tab" data-tipo="SEDIMENTARIA">&#127790; Sedimentarias</button>
-      <button class="gc-rock-tab" data-tipo="METAMORFICA">&#128142; Metamorficas</button>
-    </div>
     <div id="gc-content"></div>
   </div>
-  <div id="gc-selected-card">
-    <span class="gc-card-close" onclick="cerrarGcCard()">&#x2715;</span>
-    <h4 id="gc-card-title">—</h4>
-    <table class="gc-values-table" id="gc-card-table"></table>
-    <button class="btn-ver-ficha" id="gc-card-btn">Ver ficha completa &rarr;</button>
-  </div>
+</div>
+
+<!-- PAGINA: LAMINAS DELGADAS -->
+<div id="page-laminas" class="page">
+  <div id="lam-page-content"></div>
 </div>
 
 <!-- MODAL FICHA COMPLETA -->
@@ -1413,11 +1475,15 @@ html,body{margin:0;padding:0;height:100%;font-family:'Segoe UI',Arial,sans-serif
       <button id="closeModal">&#x2715;</button>
     </div>
     <div class="tab-bar">
-      <button class="tab-btn active" data-tab="tabMuestra">&#128247; Muestra de mano</button>
-      <button class="tab-btn" data-tab="tabLaminas">&#128300; Laminas delgadas</button>
-      <button class="tab-btn" data-tab="tabDRX">&#128202; Analisis DRX EVA</button>
+      <button class="tab-btn active" data-tab="tabDesc">📋 Descripción</button>
+      <button class="tab-btn" data-tab="tabMuestra">📷 Fotos muestra macroscópica</button>
+      <button class="tab-btn" data-tab="tabLaminas">🔬 Láminas delgadas</button>
+      <button class="tab-btn" data-tab="tabDRX">📊 Análisis DRX EVA</button>
     </div>
-    <div id="tabMuestra" class="tab-content active">
+    <div id="tabDesc" class="tab-content active">
+      <div id="descBody"></div>
+    </div>
+    <div id="tabMuestra" class="tab-content">
       <div class="gallery">
         <img id="galleryImg" src="" alt="Foto muestra">
         <button class="gallery-nav" id="galleryPrev">&#8249;</button>
@@ -1486,6 +1552,7 @@ function showPage(name){
   });
   if(name === 'map') setTimeout(()=>map.invalidateSize(), 50);
   if(name === 'geochem') renderGcPage();
+  if(name === 'laminas') renderLaminasPage();
 }
 
 /* ============================================================
@@ -1554,22 +1621,28 @@ async function geocodeSample(ubicacion,pais){
 
 function buildPopup(s,approx){
   const tieneDRX=nonEmpty(s.DRX), tieneGeoq=nonEmpty(s.GEOQUIMICA);
+  const tienePetro=nonEmpty(s.OBS_PETRO)||IMG_LAMINAS[s.UNINORTE_CODE]?.length>0;
   let html=`<div class="popup-content"><table>
     <tr><td class="k">UNINORTE CODE</td><td>${esc(s.UNINORTE_CODE)}</td></tr>
-    <tr><td class="k">Pais</td><td>${esc(s.PAIS)}</td></tr>
-    <tr><td class="k">Ubicacion</td><td>${esc(s.UBICACION)}</td></tr>
+    <tr><td class="k">País</td><td>${esc(s.PAIS)}</td></tr>
+    <tr><td class="k">Ubicación</td><td>${esc(s.UBICACION)}</td></tr>
     <tr><td class="k">Especie</td><td>${esc(s.SPP)}</td></tr>
     <tr><td class="k">Fecha</td><td>${esc(s.FECHA)}</td></tr>
     <tr><td class="k">Autor</td><td>${esc(s.AUTOR)}</td></tr>
     <tr><td class="k">Tipo de roca</td><td>${esc(s.TIPO_ROCA)}</td></tr>
-    <tr><td class="k">Clasificacion</td><td>${esc(s.CLASIFICACION)}</td></tr>
-    </table>`;
-  if(tieneGeoq) html+=`<div class="analysis">&#10003; Se realizo analisis geoquimico</div>`;
-  if(tieneDRX)  html+=`<div class="analysis">&#10003; Se realizo analisis DRX</div>`;
-  else          html+=`<div class="analysis">&#10003; Se realizo analisis petrografico</div>`;
-  if(approx) html+=`<div class="warn">&#9888; Ubicacion aproximada.</div>`;
-  else       html+=`<div class="ok">&#128205; Coordenadas originales.</div>`;
-  html+=`<button class="btn-detalle" onclick="abrirFicha('${esc(s.UNINORTE_CODE)}')">Ver ficha completa &rarr;</button></div>`;
+    <tr><td class="k">Clasificación</td><td>${esc(s.CLASIFICACION)}</td></tr>
+    </table>
+    <div class="popup-analyses">
+      <div class="${tienePetro?'analysis':'analysis-no'}">
+        ${tienePetro?'✓':'✗'} Análisis petrográfico</div>
+      <div class="${tieneDRX?'analysis':'analysis-no'}">
+        ${tieneDRX?'✓':'✗'} Análisis DRX EVA</div>
+      <div class="${tieneGeoq?'analysis':'analysis-no'}">
+        ${tieneGeoq?'✓':'✗'} Análisis geoquímico</div>
+    </div>`;
+  if(approx) html+=`<div class="warn">⚠ Ubicación aproximada.</div>`;
+  else       html+=`<div class="ok">📍 Coordenadas originales.</div>`;
+  html+=`<button class="btn-detalle" onclick="abrirFicha('${esc(s.UNINORTE_CODE)}')">Ver ficha completa →</button></div>`;
   return html;
 }
 
@@ -1597,13 +1670,30 @@ function addSampleMarker(s,lat,lon,approx){
   markerRecords.push({sample:s,marker,approx,lat,lon});
 }
 
+/* Coordenadas de respaldo para muestras sin lat/lon en el Excel */
+const COORD_FALLBACK = {
+  "NYB01": {lat:  8.50, lon: -82.50},
+  "NYB02": {lat:  8.50, lon: -82.50},
+  "NYB14": {lat:  4.00, lon: -55.50},
+  "NYB18": {lat:  6.50, lon: -64.70},
+  "NYB22": {lat:  4.00, lon: -66.00},
+  "NYB23": {lat:  4.00, lon: -67.00},
+  "NYB24": {lat: -27.50, lon: -55.00},
+  "NYB25": {lat: -27.10, lon: -54.70},
+  "NYB28": {lat: 10.50, lon: -84.50},
+  "NYB37": {lat: -3.10, lon: -58.50}
+};
+
 async function init(){
   const loadingBar=document.getElementById("loadingBar");
   const pending=[];
   samples.forEach(s=>{
     const lat=parseCoord(s.LATITUD),lon=parseCoord(s.LONGITUD);
     if(lat!==null&&lon!==null){countOriginal++;addSampleMarker(s,lat,lon,false);}
-    else pending.push(s);
+    else if(COORD_FALLBACK[s.UNINORTE_CODE]){
+      const fb=COORD_FALLBACK[s.UNINORTE_CODE];
+      countGeocoded++;addSampleMarker(s,fb.lat,fb.lon,true);
+    } else pending.push(s);
   });
   updateCounter();
   populateFilterOptions();
@@ -1687,6 +1777,9 @@ function abrirFicha(code){
   document.getElementById("modalSubtitle").textContent=
     `${s.UBICACION||"—"}, ${s.PAIS||"—"}  •  ${s.SPP||""}`;
 
+  // Tab descripción
+  renderDesc(code, s);
+
   // Tab muestra
   galleryImgs=IMG_MUESTRA[code]||[];
   galleryIdx=0;
@@ -1695,13 +1788,32 @@ function abrirFicha(code){
   // Tab laminas
   laminaPairs=IMG_LAMINAS[code]||[];
   laminaIdx=0;
-  renderLaminas();
+  renderLaminas(s);
 
   // Tab DRX
   renderDRX(code,s);
 
-  activarTab("tabMuestra");
+  activarTab("tabDesc");
   document.getElementById("modalOverlay").classList.add("open");
+}
+
+function renderDesc(code, s){
+  const body=document.getElementById("descBody");
+  const obs=s.OBS_PETRO||"";
+  const g=geoByCode[code];
+  let html=`<div class="desc-section"><h4>Descripción propia</h4>`;
+  if(obs) html+=`<div class="description-box">${esc(obs)}</div>`;
+  else    html+=`<div class="no-drx">Sin descripción petrográfica registrada.</div>`;
+  html+=`</div>`;
+  if(g){
+    const SHOW_COLS=['SiO2','Al2O3','Fe2O3(T)','MnO','MgO','CaO','Na2O','K2O','TiO2','P2O5','LOI','Total','Ba','Sr','Y','Zr','V','Sc'];
+    const rows=SHOW_COLS.filter(c=>g[c]!==undefined&&g[c]!==null).map(c=>
+      `<tr><td><b>${c}</b></td><td>${Number(g[c]).toFixed(2)}</td><td>${GEO_UNITS[c]||''}</td></tr>`).join("");
+    if(rows) html+=`<div class="desc-section"><h4>Geoquímica</h4>
+      <table class="mineral-table"><thead><tr><th>Elemento</th><th>Valor</th><th>Unidad</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>`;
+  }
+  body.innerHTML=html;
 }
 
 function renderGallery(){
@@ -1748,10 +1860,15 @@ function bindGalleryNav(){
 }
 bindGalleryNav();
 
-function renderLaminas(){
+function renderLaminas(s){
   const body=document.getElementById("laminasBody");
+  const tienePetro=nonEmpty(s&&s.OBS_PETRO)||laminaPairs.length>0;
+  if(!tienePetro){
+    body.innerHTML=`<div class="no-photos">Esta muestra no presenta análisis petrográfico. No hay lámina delgada disponible.</div>`;
+    return;
+  }
   if(!laminaPairs||laminaPairs.length===0){
-    body.innerHTML=`<div class="no-photos">&#128300; No hay imagenes de lamina delgada para esta muestra.</div>`;
+    body.innerHTML=`<div class="no-photos">🔬 No hay imágenes de lámina delgada para esta muestra.</div>`;
     return;
   }
   function renderPair(idx){
@@ -1795,11 +1912,21 @@ function renderDRX(code,s){
     tableRows+=`<tr><td>${esc(d.cod_ids[i]||"")}</td><td><b>${esc(d.minerales[i]||"")}</b></td>
       <td style="font-family:monospace;font-size:.75rem">${esc(d.formulas[i]||"")}</td></tr>`;}
   let html="";
-  if(tableRows) html+=`<div class="section-title">Fases mineralogicas</div>
-    <table class="mineral-table"><thead><tr><th>COD ID</th><th>Mineral</th><th>Formula</th></tr></thead><tbody>${tableRows}</tbody></table>`;
+  if(tableRows) html+=`<div class="section-title">Fases mineralógicas</div>
+    <table class="mineral-table"><thead><tr><th>COD ID</th><th>Mineral</th><th>Fórmula</th></tr></thead><tbody>${tableRows}</tbody></table>`;
   if(d.nota) html+=`<div class="section-title">Nota DRX EVA</div><div class="nota-box">${esc(d.nota)}</div>`;
-  if(d.descripcion) html+=`<div class="section-title">Descripcion</div><div class="description-box">${esc(d.descripcion)}</div>`;
-  if(d.interpretacion) html+=`<div class="section-title">Posible interpretacion <span class="ia-badge">IA</span></div><div class="interpretacion-box">${esc(d.interpretacion)}</div>`;
+  if(d.descripcion) html+=`<div class="section-title">Descripción propia</div><div class="description-box">${esc(d.descripcion)}</div>`;
+  if(d.interpretacion) html+=`<div class="section-title">Posible interpretación con IA <span class="ia-badge">IA</span></div><div class="interpretacion-box">${esc(d.interpretacion)}</div>`;
+  // Geoquímica en tab DRX
+  const g=geoByCode[code];
+  if(g){
+    const SHOW_COLS=['SiO2','Al2O3','Fe2O3(T)','MnO','MgO','CaO','Na2O','K2O','TiO2','P2O5','LOI','Total','Ba','Sr','Y','Zr','V','Sc'];
+    const rows=SHOW_COLS.filter(c=>g[c]!==undefined&&g[c]!==null).map(c=>
+      `<tr><td><b>${c}</b></td><td>${Number(g[c]).toFixed(2)}</td><td>${GEO_UNITS[c]||''}</td></tr>`).join("");
+    if(rows) html+=`<div class="section-title">Geoquímica</div>
+      <table class="mineral-table"><thead><tr><th>Elemento</th><th>Valor</th><th>Unidad</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
   body.innerHTML=html;
 }
 
@@ -1817,137 +1944,206 @@ document.addEventListener("keydown",(e)=>{
   if(e.key==="Escape") document.getElementById("modalOverlay").classList.remove("open");});
 
 /* ============================================================
-   PAGINA GEOQUIMICA
+   PAGINA DRX Y GEOQUIMICA
    ============================================================ */
 const GEO_UNITS = {
   SiO2:'%',Al2O3:'%','Fe2O3(T)':'%',MnO:'%',MgO:'%',CaO:'%',
   Na2O:'%',K2O:'%',TiO2:'%',P2O5:'%',LOI:'%',Total:'%',
   Ba:'ppm',Sr:'ppm',Y:'ppm',Sc:'ppm',Zr:'ppm',Be:'ppm',V:'ppm'
 };
-
-let gcActiveTipo = "IGNEA";
+const SHOW_COLS=['SiO2','Al2O3','Fe2O3(T)','MnO','MgO','CaO','Na2O','K2O','TiO2','P2O5','LOI','Total','Ba','Sr','Y','Zr','V','Sc'];
 
 function renderGcPage(){
   renderGcSampleList();
-  renderGcDiagrams();
+  renderDrxGeoContent(document.getElementById("gc-filter-tipo").value);
 }
 
 function renderGcSampleList(){
   const filterTipo = document.getElementById("gc-filter-tipo").value;
   const list = document.getElementById("gc-sample-list");
-  const gcCodes = GEO_DATA.map(g => g.UNINORTE_CODE);
-
-  let items = GEO_DATA.filter(g => {
-    const s = sampleByCode[g.UNINORTE_CODE];
-    if(!s) return true;
+  let items = samples.filter(s => {
     if(filterTipo && (s.TIPO_ROCA||"").toUpperCase() !== filterTipo) return false;
-    return true;
+    return nonEmpty(s.DRX) || geoByCode[s.UNINORTE_CODE];
   });
-
-  list.innerHTML = items.map(g => {
-    const s = sampleByCode[g.UNINORTE_CODE] || {};
-    const tipo = (s.TIPO_ROCA||"—").toLowerCase();
+  list.innerHTML = items.map(s => {
     const col = colorForRock(s.TIPO_ROCA);
-    return `<div class="gc-sample-item" data-code="${g.UNINORTE_CODE}" onclick="selectGcSample('${g.UNINORTE_CODE}')">
-      <div class="gc-code" style="color:${col}">&#11044; ${g.UNINORTE_CODE}</div>
-      <div class="gc-tipo">${tipo} &mdash; ${esc(s.CLASIFICACION||"")}</div>
+    const hasDRX = nonEmpty(s.DRX) ? ' 🔬' : '';
+    const hasGeo = geoByCode[s.UNINORTE_CODE] ? ' 📊' : '';
+    return `<div class="gc-sample-item" data-code="${s.UNINORTE_CODE}" onclick="scrollToDrxCard('${s.UNINORTE_CODE}')">
+      <div class="gc-code" style="color:${col}">⬤ ${s.UNINORTE_CODE}${hasDRX}${hasGeo}</div>
+      <div class="gc-tipo">${(s.TIPO_ROCA||"—").toLowerCase()} — ${esc(s.CLASIFICACION||"")}</div>
     </div>`;
-  }).join("") || '<div style="padding:16px;color:#888;font-size:.82rem">Sin muestras con geoquimica.</div>';
+  }).join("") || '<div style="padding:16px;color:#888;font-size:.82rem">Sin muestras.</div>';
 }
 
-function renderGcDiagrams(){
+function renderDrxGeoContent(filterTipo){
   const content = document.getElementById("gc-content");
-  const tipo = gcActiveTipo;
+  const items = samples.filter(s => {
+    if(filterTipo && (s.TIPO_ROCA||"").toUpperCase() !== filterTipo) return false;
+    return nonEmpty(s.DRX) || geoByCode[s.UNINORTE_CODE];
+  });
+  if(!items.length){ content.innerHTML='<div class="gc-no-data">Sin muestras para este filtro.</div>'; return; }
+  content.innerHTML = items.map(s => {
+    const code = s.UNINORTE_CODE;
+    const g = geoByCode[code];
+    const drxImg = IMG_DRX[code];
+    const d = DRX_DATA[code];
+    const col = colorForRock(s.TIPO_ROCA);
 
-  const diagramKeys = {
-    IGNEA: [
-      {key:'igneas_qapf',         title:'QAPF Plutonico — Streckeisen (1976)'},
-      {key:'igneas_tas',          title:'TAS — Le Bas et al. (1986)'},
-      {key:'igneas_afm',          title:'AFM — Kuno (1968)'},
-      {key:'igneas_jensen',       title:'Jensen (1976) — Clasificacion Cationica'},
-      {key:'igneas_shervais',     title:'Shervais (1982): V vs Ti'},
-      {key:'igneas_harker_mgo',   title:'Harker: SiO₂ vs MgO'},
-      {key:'igneas_harker_al2o3', title:'Harker: SiO₂ vs Al₂O₃'},
-      {key:'igneas_harker',       title:'Harker: SiO₂ vs MgO / Al₂O₃'},
-    ],
-    SEDIMENTARIA: [
-      {key:'sed_cia',   title:'CIA — Indice de Alteracion Quimica (Nesbitt & Young 1982)'},
-      {key:'sed_herron',title:'Herron (1988) — Clasificacion Sedimentaria'},
-      {key:'sed_acnk',  title:'A-CN-K — Linea de Meteorizacion (Nesbitt & Young 1984)'},
-      {key:'sed_wf',    title:'Winchester & Floyd (1977)'},
-    ],
-    METAMORFICA: [
-      {key:'meta_wf1',  title:'Winchester & Floyd (1977) — var. 1'},
-      {key:'meta_wf2',  title:'Winchester & Floyd (1977) — var. 2'},
-      {key:'meta_zrti', title:'Zr vs TiO₂'},
-      {key:'meta_acf',  title:'ACF — Rocas Metamorficas'},
-      {key:'meta_wf',   title:'Winchester & Floyd: Zr/TiO₂ vs Y'},
-    ],
-  };
+    const imgHtml = drxImg
+      ? `<img src="${drxImg}" alt="${code}" style="max-width:100%;border-radius:6px;cursor:zoom-in" onclick="abrirImgFull('${drxImg}','${code}')">`
+      : `<div class="drx-geo-img-placeholder">Sin difractograma</div>`;
 
-  const keys = diagramKeys[tipo] || [];
-  const available = keys.filter(d => DIAGRAMAS[d.key]);
+    let popupBtn = '';
+    if(d && (d.minerales.length || d.descripcion || d.interpretacion)){
+      popupBtn = `<button class="drx-geo-popup-btn" onclick="abrirMineralPopup('${code}')">
+        🔬 Ver fases mineralógicas e interpretación</button>`;
+    }
 
-  if(!available.length){
-    content.innerHTML=`<div class="gc-no-data">No hay diagramas disponibles para rocas ${tipo.toLowerCase()}.<br>
-      <small>Solo se generan diagramas si hay muestras con geoquimica de ese tipo.</small></div>`;
-    return;
-  }
+    let geoHtml = '';
+    if(g){
+      const rows = SHOW_COLS.filter(c=>g[c]!==undefined&&g[c]!==null).map(c=>{
+        const val = Number(g[c]);
+        const unit = GEO_UNITS[c]||'';
+        const isOxide = unit==='%';
+        const barW = isOxide ? Math.min(100, val*2) : Math.min(100, val/500*100);
+        const barColor = isOxide ? '#1d3557' : '#e63946';
+        return `<tr><td><b>${c}</b></td>
+          <td><div class="geo-bar-cell">
+            <div class="geo-bar" style="width:${barW.toFixed(1)}%;background:${barColor}"></div>
+            <span>${val.toFixed(2)}</span>
+          </div></td>
+          <td style="color:#888;font-size:.72rem">${unit}</td></tr>`;
+      }).join("");
+      geoHtml = `<div style="margin-top:8px"><b style="font-size:.8rem;color:#1d3557">Geoquímica</b>
+        <table class="geo-table-visual"><thead><tr><th>Elemento</th><th>Valor</th><th>Und.</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    }
 
-  content.innerHTML = available.map(d => {
-    const w = tipo === 'IGNEA' && d.key === 'igneas_harker' ? '100%' : 'calc(50% - 7px)';
-    return `<div class="gc-diagram-card" style="width:${w};min-width:260px;flex:1 1 260px">
-      <img src="${DIAGRAMAS[d.key]}" alt="${d.title}" loading="lazy">
-      <div class="gc-diagram-title">${d.title}</div>
+    return `<div class="drx-geo-card" id="drxcard-${code}">
+      <div class="drx-geo-card-header">
+        <span class="drx-geo-code" style="color:${col}">⬤ ${code}</span>
+        <span class="drx-geo-tipo">${s.TIPO_ROCA||"—"} — ${esc(s.CLASIFICACION||"")}</span>
+        <button class="btn-detalle" style="margin-left:auto" onclick="abrirFicha('${code}')">Ver ficha completa →</button>
+      </div>
+      <div class="drx-geo-body">
+        <div class="drx-geo-img">${imgHtml}${popupBtn}</div>
+        <div class="drx-geo-info">${geoHtml||'<div class="no-drx" style="padding:16px;color:#888">Sin datos geoquímicos.</div>'}</div>
+      </div>
     </div>`;
   }).join("");
 }
 
-document.querySelectorAll(".gc-rock-tab").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".gc-rock-tab").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    gcActiveTipo = btn.dataset.tipo;
-    renderGcDiagrams();
-  });
-});
-
-document.getElementById("gc-filter-tipo").addEventListener("change", renderGcSampleList);
-
-function selectGcSample(code){
+function scrollToDrxCard(code){
   document.querySelectorAll(".gc-sample-item").forEach(el=>
-    el.classList.toggle("selected", el.dataset.code === code));
-  const g = geoByCode[code];
-  const s = sampleByCode[code] || {};
-  if(!g) return;
-
-  document.getElementById("gc-card-title").textContent =
-    `${code} — ${s.TIPO_ROCA||"—"} (${s.CLASIFICACION||"—"})`;
-
-  const SHOW_COLS = ['SiO2','Al2O3','Fe2O3(T)','MnO','MgO','CaO','Na2O','K2O',
-                     'TiO2','P2O5','LOI','Total','Ba','Sr','Y','Zr','V','Sc'];
-  const rows = SHOW_COLS.filter(c => g[c]!==undefined && g[c]!==null).map(c =>
-    `<tr><td>${c}</td><td>${g[c] !== null ? Number(g[c]).toFixed(2) : '—'} ${GEO_UNITS[c]||''}</td></tr>`
-  ).join("");
-  document.getElementById("gc-card-table").innerHTML = rows;
-
-  document.getElementById("gc-card-btn").onclick = () => abrirFicha(code);
-  document.getElementById("gc-selected-card").classList.add("show");
-
-  // Cambiar tab de diagramas al tipo de esta muestra
-  const tipo = (s.TIPO_ROCA||"").toUpperCase().trim();
-  if(tipo){
-    gcActiveTipo = tipo;
-    document.querySelectorAll(".gc-rock-tab").forEach(b=>{
-      b.classList.toggle("active", b.dataset.tipo===tipo);
-    });
-    renderGcDiagrams();
-  }
+    el.classList.toggle("selected", el.dataset.code===code));
+  const card = document.getElementById("drxcard-"+code);
+  if(card) card.scrollIntoView({behavior:"smooth", block:"start"});
 }
 
-function cerrarGcCard(){
-  document.getElementById("gc-selected-card").classList.remove("show");
-  document.querySelectorAll(".gc-sample-item").forEach(el=>el.classList.remove("selected"));
+function abrirMineralPopup(code){
+  const d = DRX_DATA[code];
+  if(!d) return;
+  let html=`<button class="mineral-popup-close" onclick="cerrarMineralPopup()">✕</button>
+    <h3>🔬 ${code} — DRX EVA</h3>`;
+  const maxLen=Math.max((d.cod_ids||[]).length,(d.minerales||[]).length,(d.formulas||[]).length);
+  if(maxLen>0){
+    let rows='';
+    for(let i=0;i<maxLen;i++) rows+=`<tr><td>${esc((d.cod_ids||[])[i]||"")}</td>
+      <td><b>${esc((d.minerales||[])[i]||"")}</b></td>
+      <td style="font-family:monospace;font-size:.75rem">${esc((d.formulas||[])[i]||"")}</td></tr>`;
+    html+=`<div class="section-title">Fases mineralógicas</div>
+      <table class="mineral-table"><thead><tr><th>COD ID</th><th>Mineral</th><th>Fórmula</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+  }
+  if(d.nota) html+=`<div class="section-title">Nota</div><div class="nota-box">${esc(d.nota)}</div>`;
+  if(d.descripcion) html+=`<div class="section-title">Descripción propia</div><div class="description-box">${esc(d.descripcion)}</div>`;
+  if(d.interpretacion) html+=`<div class="section-title">Posible interpretación con IA</div><div class="interpretacion-box">${esc(d.interpretacion)}</div>`;
+  const overlay=document.createElement("div");
+  overlay.className="mineral-popup-overlay";
+  overlay.id="mineralPopupOverlay";
+  overlay.innerHTML=`<div class="mineral-popup">${html}</div>`;
+  overlay.addEventListener("click",e=>{if(e.target===overlay) cerrarMineralPopup();});
+  document.body.appendChild(overlay);
+}
+function cerrarMineralPopup(){
+  const el=document.getElementById("mineralPopupOverlay");
+  if(el) el.remove();
+}
+function abrirImgFull(src, title){
+  const overlay=document.createElement("div");
+  overlay.className="mineral-popup-overlay";
+  overlay.innerHTML=`<div style="max-width:90vw;max-height:90vh;position:relative">
+    <button class="mineral-popup-close" style="top:-30px;right:0;color:#fff;font-size:1.5rem"
+      onclick="this.parentElement.parentElement.remove()">✕</button>
+    <img src="${src}" alt="${title}" style="max-width:90vw;max-height:85vh;border-radius:8px;">
+  </div>`;
+  overlay.addEventListener("click",e=>{if(e.target===overlay) overlay.remove();});
+  document.body.appendChild(overlay);
+}
+
+document.getElementById("gc-filter-tipo").addEventListener("change", ()=>{
+  renderGcSampleList();
+  renderDrxGeoContent(document.getElementById("gc-filter-tipo").value);
+});
+
+/* ============================================================
+   PAGINA LAMINAS DELGADAS
+   ============================================================ */
+function renderLaminasPage(){
+  const content = document.getElementById("lam-page-content");
+  const conLaminas = samples.filter(s => (IMG_LAMINAS[s.UNINORTE_CODE]||[]).length > 0);
+  if(!conLaminas.length){
+    content.innerHTML='<div style="padding:40px;text-align:center;color:#888">No hay láminas delgadas disponibles.</div>';
+    return;
+  }
+  content.innerHTML = conLaminas.map(s => {
+    const code = s.UNINORTE_CODE;
+    const pairs = IMG_LAMINAS[code] || [];
+    const col = colorForRock(s.TIPO_ROCA);
+
+    const pairsHtml = pairs.map((pair, idx) => `
+      <div style="margin-bottom:20px">
+        <div class="lam-pair-title">Par ${idx+1}</div>
+        <div class="lam-pair-grid">
+          <div class="lam-pair-item">
+            ${pair.nc ? `<img src="${pair.nc}" alt="NC ${idx+1}" onclick="abrirImgFull('${pair.nc}','${code} NC ${idx+1}')">` : '<div class="drx-geo-img-placeholder">Sin imagen NC</div>'}
+            <div class="lam-pair-label">NC — Nícoles Cruzados</div>
+            <div class="lam-pair-coords">Coordenadas: —</div>
+          </div>
+          <div class="lam-pair-item">
+            ${pair.np ? `<img src="${pair.np}" alt="NP ${idx+1}" onclick="abrirImgFull('${pair.np}','${code} NP ${idx+1}')">` : '<div class="drx-geo-img-placeholder">Sin imagen NP</div>'}
+            <div class="lam-pair-label">NP — Nícoles Paralelos</div>
+            <div class="lam-pair-coords">Coordenadas: —</div>
+          </div>
+        </div>
+      </div>`).join("");
+
+    return `<div class="lam-page-sample">
+      <div class="lam-page-header">
+        <span class="lam-page-code" style="color:${col}">⬤ ${code}</span>
+        <span class="lam-page-tipo">${s.TIPO_ROCA||"—"} — ${esc(s.CLASIFICACION||"")}</span>
+        <button class="btn-detalle" style="margin-left:auto" onclick="abrirFicha('${code}')">Ver ficha →</button>
+      </div>
+      <div class="lam-page-body">
+        <div class="lam-desc-grid">
+          <div class="lam-desc-box">
+            <label>Descripción general</label>
+            <p>${esc(s.OBS_PETRO||"—")}</p>
+          </div>
+          <div class="lam-desc-box">
+            <label>Texturas específicas</label>
+            <p>—</p>
+          </div>
+          <div class="lam-desc-box">
+            <label>Minerales</label>
+            <p>—</p>
+          </div>
+        </div>
+        ${pairsHtml}
+      </div>
+    </div>`;
+  }).join("");
 }
 
 /* ============================================================
@@ -2143,6 +2339,34 @@ if __name__ == "__main__":
 
     print("Buscando laminas delgadas...")
     img_laminas = recopilar_laminas_delgadas(all_codes, laminas_dir, img_out_dir)
+
+    # Complementar laminas desde drive_urls.json si existen
+    drive_map_file = Path(__file__).parent / "drive_urls.json"
+    if drive_map_file.exists():
+        drive_map = json.loads(drive_map_file.read_text(encoding="utf-8"))
+        pat_nc = re.compile(r'(NYB\d+)_(\d+)NC', re.IGNORECASE)
+        pat_np = re.compile(r'(NYB\d+)_(\d+)NP', re.IGNORECASE)
+        nc_drive, np_drive = {}, {}
+        for fname, url in drive_map.items():
+            m = pat_nc.match(fname)
+            if m:
+                code = f"NYB{int(m.group(1)[3:]):02d}"
+                nc_drive[(code, m.group(2))] = url
+            m = pat_np.match(fname)
+            if m:
+                code = f"NYB{int(m.group(1)[3:]):02d}"
+                np_drive[(code, m.group(2))] = url
+        keys = set(nc_drive.keys()) | set(np_drive.keys())
+        for (code, num) in sorted(keys):
+            if code not in img_laminas:
+                continue
+            already = {p["num"] for p in img_laminas[code]}
+            if num not in already:
+                img_laminas[code].append({
+                    "nc": nc_drive.get((code, num)),
+                    "np": np_drive.get((code, num)),
+                    "num": num
+                })
 
     # Mapa de tipo de roca por codigo
     tipo_roca_map = {}
